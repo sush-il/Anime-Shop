@@ -1,10 +1,9 @@
 import sqlite3
 
+conn = sqlite3.connect('info.db')
+cur = conn.cursor()
 #Connect to database and Create Tables
 def connect():
-    conn = sqlite3.connect('info.db')
-    cur = conn.cursor()
-
     #create owners table
     cur.execute("""
     CREATE TABLE IF NOT EXISTS Owner(
@@ -58,11 +57,18 @@ def connect():
         Address TEXT,
         Category TEXT)""")
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS Orders(
+        id INTEGER PRIMARY KEY,
+        User_id INTEGER,
+        Product_id INTEGER,
+        FOREIGN KEY(User_id) REFERENCES Customer(id),
+        FOREIGN KEY(Product_id) REFERENCES Product(id))""")
+
     conn.commit()
     conn.close()
 
-################# Managing People ### Owner,Employee,Customer ########################
-
+########## Managing People ### Owner,Employee,Customer ##################
 def insert(name,dob,phone,address,email,password,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -112,10 +118,13 @@ def update(id,name,dob,phone,address,email,password,db):
     conn.commit()
     conn.close()
 
-################# Managing Products / Events ########################
+################# Managing Products / Events DATA ########################
 def insert_pd(name,price,isbn,address,category,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
+
+    if category == "Event":
+        db = "Events"
 
     cur.execute(f"""
     INSERT INTO {db} VALUES(Null,?,?,?,?,?)""",(name,price,isbn,address,category))
@@ -161,5 +170,30 @@ def update_pd(id,name,price,isbn,address,category,db):
             WHERE id=?""",(name,price,isbn,address,category,id)) 
     conn.commit()
     conn.close()
+
+################### Managing Orders #################################
+def create_order(userid,productid,db):
+    conn = sqlite3.connect('info.db')
+    cur = conn.cursor()
+
+    cur.execute(f"""INSERT INTO {db}
+        VALUES (NULL,?,?)""",(userid,productid))
+    conn.commit()
+    conn.close()
+
+def view_order(userid):
+    conn = sqlite3.connect('info.db')
+    cur = conn.cursor()
+
+    cur.execute(f"""SELECT Name,Price 
+                    FROM Orders INNER JOIN Product 
+                    ON Orders.Product_id = Product.id
+                    WHERE User_id = ?""",str(userid))
+    
+    rows = cur.fetchall()
+    conn.commit()
+    conn.close()
+
+    return rows
 
 connect()

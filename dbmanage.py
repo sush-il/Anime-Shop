@@ -1,3 +1,4 @@
+from os import access
 import tkinter as tk
 import access_db
 
@@ -95,3 +96,22 @@ class ManageProduct:
     
     def update_data(self,db):
         access_db.update_pd(selected_tuple[0],self.container.name.get(),self.container.price.get(),self.container.isbn.get(),self.container.address.get(),self.container.category.get(),db)
+
+class CustomerProductView:
+    def __init__(self,container):
+        self.container = container
+    
+    def search_data(self,db):
+        self.container.lst_box.delete(0,tk.END)
+        for row in access_db.search_pd(self.container.name.get(),self.container.price.get(),self.container.isbn.get(),"##","##",db):
+            self.container.lst_box.insert(tk.END,row)
+
+    def insert_order(self,user_id):
+        product_id = selected_tuple[0]
+        self.container.lst_box.delete(0,tk.END)
+        access_db.createorder(user_id,selected_tuple[0],"Orders")
+ 
+    def view_order(self,userid):
+        self.lst_box.delete(0,tk.END)
+        for row in access_db.view_order(userid):
+            self.lst_box.insert(tk.END,row)
