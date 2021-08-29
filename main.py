@@ -3,7 +3,6 @@ import sqlite3
 import access_db
 from dbmanage import CustomerProductView, ManagePeople,ManageProduct
 
-
 #Application class with necessary components to make pages
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -302,6 +301,7 @@ class CustomerView(tk.Frame):
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
 
+        #setting up the navbar and frames for customer view
         nav = tk.Frame(self)
         nav.grid(row=0,column=0,padx=25,pady=10,columnspan=3)
         
@@ -370,15 +370,50 @@ class ProductView(tk.Frame):
         #Action button frame buttons
         view_all = tk.Button(abf,text="View all",width=20,height=2,command=lambda:ManageProduct(self).view_data('Product')).pack(pady=5,padx=5)
         search = tk.Button(abf,text="Search",width=20,height=2,command=lambda:CustomerProductView(self).search_data('Product')).pack(padx=5)
-        to_basket = tk.Button(abf,text="Add to basket",width=20,height=2,bg='orange',command=lambda: CustomerProductView(self).insert_order(user_id)).pack(pady=5,padx=5)
+        to_basket = tk.Button(abf,text="Add to basket",width=20,height=2,bg='orange',command=lambda: CustomerProductView(self).insert_order(user_id,"Product")).pack(pady=5,padx=5)
         view_basket = tk.Button(abf,text="Open Basket",width=20,height=2,bg='lightblue',command=lambda:controller.show_frame(Basket)).pack(padx=5)
-        
+        exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command=lambda:App(self).destroy).pack(padx=5,pady=5)
 # Events Object frame layouts product details
 class EventView(tk.Frame):
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
 
-        lbl = tk.Label(self,text='This Events page').pack()
+        #making frames for different sections of the layout
+        #View area frame
+        va = tk.Frame(self)
+        va.grid(row=0,column=0,padx=5,pady=0,columnspan=3)
+        #product name frame
+        pnf = tk.Frame(self)  
+        pnf.grid(row=1,column=1,padx=5,rowspan=2)
+        #Action button frame
+        abf = tk.Frame(self)
+        abf.grid(row=1,column=2,padx=5,pady=10,sticky=tk.W)
+        
+        #View area entry
+        #name
+        name_label = tk.Label(va,text='Name').grid(row=0,column=0,sticky=tk.W,padx=5)
+        self.name = tk.Entry(va,width=25)
+        self.name.grid(row=1,column=0,pady=5,padx=5,ipady=5)
+        #Price
+        price_label = tk.Label(va,text='Price').grid(row=0,column=1,sticky=tk.W,padx=5)
+        self.price = tk.Entry(va,width=25)
+        self.price.grid(row=1,column=1,pady=5,padx=5,ipady=5)
+        #ISBN
+        address_label = tk.Label(va,text='Address').grid(row=0,column=2,sticky=tk.W,padx=5)
+        self.address = tk.Entry(va,width=25)
+        self.address.grid(row=1,column=2,pady=5,padx=5,ipady=5)
+        #set scrollbar and listbox
+        scroll = tk.Scrollbar(pnf)
+        scroll.grid(row=2,column=3,columnspan=1,sticky='w',padx=5,rowspan=3)
+        self.lst_box = tk.Listbox(pnf,width=45,height=20,bg='lightblue',bd=5)
+        self.lst_box.grid(row=2,column=0,pady=5,rowspan=3,columnspan=3,sticky='w')
+        self.lst_box.bind('<<ListboxSelect>>',ManageProduct(self).get_selected_row)
+        scroll.configure(command = self.lst_box.yview)
+        
+        #Action button frame buttons
+        view_all = tk.Button(abf,text="View all",width=20,height=2,command=lambda:ManageProduct(self).view_data('Events')).pack(pady=5,padx=5)
+        search = tk.Button(abf,text="Search",width=20,height=2,command=lambda:CustomerProductView(self).search_data('Events')).pack(padx=5)
+        exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command="").pack(padx=5,pady=5)
 
 # Contacts page providing contact details
 class Contact(tk.Frame):

@@ -66,15 +66,12 @@ class ManageProduct:
 
         self.container.price.delete(0,tk.END)
         self.container.price.insert(tk.END,selected_tuple[2])
-
-        self.container.isbn.delete(0,tk.END)
-        self.container.isbn.insert(tk.END,selected_tuple[3])
-
-        self.container.address.delete(0,tk.END)
-        self.container.address.insert(tk.END,selected_tuple[4])
-        
-        #self.container.category.delete(0,tk.END)
-        #self.container.dropdown.insert(tk.END,selected_tuple[5])
+        try:
+            self.container.isbn.delete(0,tk.END)
+            self.container.isbn.insert(tk.END,selected_tuple[3])
+        except:
+            self.container.address.delete(0,tk.END)
+            self.container.address.insert(tk.END,selected_tuple[4])
 
     def view_data(self,db):
         self.container.lst_box.delete(0,tk.END)
@@ -106,10 +103,10 @@ class CustomerProductView:
         for row in access_db.search_pd(self.container.name.get(),self.container.price.get(),self.container.isbn.get(),"##","##",db):
             self.container.lst_box.insert(tk.END,row)
 
-    def insert_order(self,user_id):
+    def insert_order(self,user_id,product_type):
         product_id = selected_tuple[0]
         self.container.lst_box.delete(0,tk.END)
-        access_db.createorder(user_id,selected_tuple[0],"Orders")
+        access_db.create_order(user_id,selected_tuple[0],"Orders")
  
     def view_order(self,userid):
         self.lst_box.delete(0,tk.END)
