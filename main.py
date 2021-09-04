@@ -1,7 +1,7 @@
 import tkinter as tk
 import sqlite3
 import access_db
-from dbmanage import CustomerProductView, ManagePeople,ManageProduct
+from dbmanage import CustomerProductView, ManageOrder, ManagePeople,ManageProduct
 
 #Application class with necessary components to make pages
 class App(tk.Tk):
@@ -21,7 +21,8 @@ class App(tk.Tk):
         self.frames = {}
         
         #loop through each frame and stack them on top of each other
-        for F in (StartPage,LoginPage,StaffView,OwnerView,CustomerView,StaffManageProduct):
+        all_frames = (StartPage,LoginPage,StaffView,OwnerView,CustomerView,StaffManageProduct,StaffManageOrder)
+        for F in all_frames:
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -157,6 +158,7 @@ class StaffView(tk.Frame):
         delete = tk.Button(frame2,width=15,height=3,text='Delete Customer',command=lambda:ManagePeople(self).delete_data('Customer'))
         view_staff = tk.Button(frame2,width=15,height=3,text='View all Staff',command=lambda:ManagePeople(self).view_data('Staff'))
         mng_product = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Manage Products',command=lambda: controller.show_frame(StaffManageProduct))
+        mng_orders =  tk.Button(frame2,width=15,height=3,bg='lightgreen',text='Manage Orders',command=lambda: controller.show_frame(StaffManageOrder))
         exit = tk.Button(frame2,width=15,height=3,text="Exit",bg='red',command=lambda:controller.show_frame(StartPage))
         #place all the buttons
         add_cust.grid(row=0,column=0,padx=5,pady=5)
@@ -165,7 +167,8 @@ class StaffView(tk.Frame):
         srch_cust.grid(row=1,column=1,padx=5,pady=5)
         view_staff.grid(row=2,column=0,padx=5,pady=5)
         mng_product.grid(row=2,column=1,padx=5,pady=5)
-        exit.grid(row=3,column=0,columnspan=3)
+        mng_orders.grid(row=3,column=0)
+        exit.grid(row=3,column=1)
 
 #Owner window upon authentication
 class OwnerView(tk.Frame):
@@ -222,15 +225,19 @@ class OwnerView(tk.Frame):
         update = tk.Button(frame2,width=15,height=3,text='Update',command= lambda: ManagePeople(self).update_data('Staff'))
         view_staff = tk.Button(frame2,width=15,height=3,text='Search Staff',command=lambda: ManagePeople(self).search_data('Staff'))
         view_cust = tk.Button(frame2,width=15,height=3,text='Search Customer' )
-        menu = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Menu',command=lambda: controller.show_frame(StartPage))
-        exit = tk.Button(frame2,width=15,height=3,bg='Red',text='Exit',command=self.destroy)
+        delete = tk.Button(frame2,width=15,height=3,text='Delete Staff',command=lambda:ManagePeople(self).delete_data('Staff'))
+        mng_product = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Manage Products',command=lambda: controller.show_frame(StaffManageProduct))
+        mng_orders =  tk.Button(frame2,width=15,height=3,bg='lightgreen',text='Manage Orders',command=lambda: controller.show_frame(StaffManageOrder))
+        exit = tk.Button(frame2,width=15,height=3,text="Exit",bg='red',command=lambda:controller.show_frame(StartPage))
         
         add_staff.grid(row=0,column=0,padx=5,pady=5)
         update.grid(row=0,column=1,padx=5,pady=5) 
         view_staff.grid(row=1,column=0,padx=5,pady=5)
         view_cust.grid(row=1,column=1,padx=5,pady=5)
-        menu.grid(row=2,column=0,padx=5,pady=5)
-        exit.grid(row=2,column=1,padx=5,pady=5)
+        delete.grid(row=2,column=0,padx=5,pady=5)
+        mng_product.grid(row=2,column=1,padx=5,pady=5)
+        mng_orders.grid(row=3,column=0)
+        exit.grid(row=3,column=1)
 
 #Where the employees can manage product details
 class StaffManageProduct(tk.Frame):
@@ -295,6 +302,58 @@ class StaffManageProduct(tk.Frame):
         view_all.grid(row=2,column=0,padx=5,pady=5)
         mng_people.grid(row=2,column=1,padx=5,pady=5)
         exit.grid(row=3,column=0,columnspan=3)
+
+#Where the employees can manage order details
+class StaffManageOrder(tk.Frame):
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+
+        #making frames for different sections of the layout
+        #View area frame
+        va = tk.Frame(self)
+        va.grid(row=0,column=0,padx=5,pady=0,columnspan=3)
+        #product name frame
+        pnf = tk.Frame(self)  
+        pnf.grid(row=1,column=1,padx=5,rowspan=2)
+        #Action button frame
+        abf = tk.Frame(self)
+        abf.grid(row=1,column=2,padx=5,pady=10,sticky=tk.W)
+        
+        #View area entry
+        #User id
+        userid_label = tk.Label(va,text='User Id').grid(row=0,column=0,sticky=tk.W,padx=5)
+        self.userid = tk.Entry(va,width=25)
+        self.userid.grid(row=1,column=0,pady=5,padx=5,ipady=5)
+        #Product Name
+        name_label = tk.Label(va,text='Product Name').grid(row=0,column=1,sticky=tk.W,padx=5)
+        self.pdname = tk.Entry(va,width=25)
+        self.pdname.grid(row=1,column=1,pady=5,padx=5,ipady=5)
+        #Price
+        price_label = tk.Label(va,text='Price').grid(row=0,column=2,sticky=tk.W,padx=5)
+        self.price = tk.Entry(va,width=25)
+        self.price.grid(row=1,column=2,pady=5,padx=5,ipady=5)
+        
+        #Category
+        """
+        catg_label = tk.Label(va,text='Status').grid(row=2,column=0,sticky=tk.W,padx=5)
+        self.category = tk.StringVar(value="Select")
+        self.dropdown = tk.OptionMenu(va,self.category,"Pending","Confirmed")
+        self.dropdown.config(width=15,bg='lightgreen')
+        self.dropdown.grid(row=3,column=0,pady=5,padx=5,ipady=5,sticky=tk.W) """
+        
+        #set scrollbar and listbox
+        scroll = tk.Scrollbar(pnf)
+        scroll.grid(row=2,column=3,columnspan=1,sticky='w',padx=5,rowspan=3)
+        self.lst_box = tk.Listbox(pnf,width=45,height=20,bg='lightblue',bd=5)
+        self.lst_box.grid(row=2,column=0,pady=5,rowspan=3,columnspan=3,sticky='w')
+        self.lst_box.bind('<<ListboxSelect>>',ManageOrder(self).get_selected_row)
+        scroll.configure(command = self.lst_box.yview)
+        
+        #Action button frame buttons
+        view_all = tk.Button(abf,text="View all Orders",width=20,height=2,command=lambda:CustomerProductView(self).view_all_orders()).pack(pady=5,padx=5)
+        search = tk.Button(abf,text="Search",width=20,height=2,command=lambda:ManageOrder(self).search_order()).pack(padx=5)
+        mng_product = tk.Button(abf,text="Manage Product",width=20,height=2,bg='orange',command=lambda: controller.show_frame(StaffManageProduct)).pack(pady=5,padx=5)
+        exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command=lambda:controller.show_frame(LoginPage)).pack(padx=5,pady=5)
 
 #Customer window upon authentication
 class CustomerView(tk.Frame):
@@ -373,6 +432,7 @@ class ProductView(tk.Frame):
         to_basket = tk.Button(abf,text="Add to basket",width=20,height=2,bg='orange',command=lambda: CustomerProductView(self).insert_order(user_id,"Product")).pack(pady=5,padx=5)
         view_basket = tk.Button(abf,text="Open Basket",width=20,height=2,bg='lightblue',command=lambda:controller.show_frame(Basket)).pack(padx=5)
         exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command=lambda:App(self).destroy).pack(padx=5,pady=5)
+
 # Events Object frame layouts product details
 class EventView(tk.Frame):
     def __init__(self,parent,controller):

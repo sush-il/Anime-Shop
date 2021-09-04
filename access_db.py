@@ -105,7 +105,7 @@ def search(name="",dob="",phone="",email="",address="",db=""):
 def delete(id,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
-    cur.execute(f"""DELETE FROM {db} WHERE id=?""",(int(id))) 
+    cur.execute(f"""DELETE FROM {db} WHERE id = ? """,(id,)) 
     conn.commit()
     conn.close()
 
@@ -158,7 +158,7 @@ def search_pd(name="",price="",isbn="",address="",category="",db=""):
 def delete_pd(id,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
-    cur.execute(f"""DELETE FROM {db} WHERE id=?""",(id)) 
+    cur.execute(f"""DELETE FROM {db} WHERE id=?""",(id,)) 
     conn.commit()
     conn.close()
 
@@ -181,6 +181,18 @@ def create_order(userid,productid,db):
     conn.commit()
     conn.close()
 
+def search_order(userid):
+    conn = sqlite3.connect('info.db')
+    cur = conn.cursor()
+    cur.execute(f"""SELECT User_id,Name,Price,Address 
+                    FROM Orders INNER JOIN Product
+                    ON Orders.Product_id = Product.id
+                    WHERE User_id = ?""",str(userid))
+    rows = cur.fetchall()
+    conn.close()
+
+    return rows
+
 def view_order(userid):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -196,4 +208,18 @@ def view_order(userid):
 
     return rows
 
+def view_all_orders():
+    conn = sqlite3.connect('info.db')
+    cur = conn.cursor()
+
+    cur.execute(f"""SELECT User_id,Name,Price 
+                    FROM Orders INNER JOIN Product 
+                    ON Orders.Product_id = Product.id""")
+    
+    rows = cur.fetchall()
+    conn.close()
+
+    return rows
+
+    
 connect()

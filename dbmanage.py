@@ -7,11 +7,12 @@ class ManagePeople:
         self.container = container
 
     def get_selected_row(self,event):
+        #selected tuple is the selected item from listbox
         global selected_tuple
         index = self.container.lst_box.curselection()[0]
         selected_tuple = self.container.lst_box.get(index)
         
-        #populating the fields upon selection
+        #populating the fields with data upon selection
         self.container.name.delete(0,tk.END)
         self.container.name.insert(tk.END,selected_tuple[1])
         
@@ -46,6 +47,16 @@ class ManagePeople:
         self.container.lst_box.insert(tk.END,(self.container.name.get(),self.container.age.get(),self.container.phone.get(),self.container.address.get(),self.container.email.get(),self.container.password.get()))
 
     def delete_data(self,db):
+        #clearing the lisbox
+        self.container.lst_box.delete(0,tk.END)
+        #clearing the entry widgets
+        self.container.name.delete(0,tk.END)
+        self.container.age.delete(0,tk.END)
+        self.container.phone.delete(0,tk.END)
+        self.container.address.delete(0,tk.END)
+        self.container.email.delete(0,tk.END)
+        self.container.password.delete(0,tk.END)
+
         access_db.delete(selected_tuple[0],db)
     
     def update_data(self,db):
@@ -112,3 +123,43 @@ class CustomerProductView:
         self.lst_box.delete(0,tk.END)
         for row in access_db.view_order(userid):
             self.lst_box.insert(tk.END,row)
+    
+    def view_all_orders(self):
+        self.container.lst_box.delete(0,tk.END)
+        for row in access_db.view_all_orders():
+            self.container.lst_box.insert(tk.END,row)
+
+class ManageOrder:
+    def __init__(self,container):
+        self.container = container
+
+    def get_selected_row(self,event):
+        global selected_tuple
+        index = self.container.lst_box.curselection()[0]
+        selected_tuple = self.container.lst_box.get(index)
+        
+        #populating the fields upon selection
+        self.container.userid.delete(0,tk.END)
+        self.container.userid.insert(tk.END,selected_tuple[0])
+
+        self.container.pdname.delete(0,tk.END)
+        self.container.pdname.insert(tk.END,selected_tuple[1])
+
+        self.container.price.delete(0,tk.END)
+        self.container.price.insert(tk.END,selected_tuple[2])
+
+    def search_order(self):
+        userid = self.container.userid.get()
+        self.container.lst_box.delete(0,tk.END)
+        for row in access_db.search_order(userid):
+            self.container.lst_box.insert(tk.END,row)
+
+
+
+
+
+
+
+
+
+
