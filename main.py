@@ -1,7 +1,6 @@
 import tkinter as tk
 import sqlite3
-import access_db
-from dbmanage import CustomerProductView, ManageOrder, ManagePeople,ManageProduct
+from dbmanage import *
 
 #Application class with necessary components to make pages
 class App(tk.Tk):
@@ -9,7 +8,7 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         #Set the frame and geometry for the app
-        self.geometry('500x500')
+        self.geometry('800x500')
         self.resizable(0,0)
         
         container = tk.Frame(self)
@@ -21,7 +20,7 @@ class App(tk.Tk):
         self.frames = {}
         
         #loop through each frame and stack them on top of each other
-        all_frames = (StartPage,LoginPage,StaffView,OwnerView,CustomerView,StaffManageProduct,StaffManageOrder)
+        all_frames = (StartPage,LoginPage,StaffView,OwnerView,CustomerView,StaffManageProduct,StaffManageOrder,UserOrder)
         for F in all_frames:
             frame = F(container, self)
             self.frames[F] = frame
@@ -51,6 +50,7 @@ class StartPage(tk.Frame):
     
     def check_view(self,user_stat,controller):
         #create global user variable so correct frame is shown on login
+        #(it can take values of Owner,Staff,Customer)
         global user_type
         user_type = user_stat
         controller.show_frame(LoginPage)
@@ -130,23 +130,23 @@ class StaffView(tk.Frame):
         name_label = tk.Label(frame1,text='Name').grid(row=0,column=0,sticky=tk.W,padx=5)
         self.name = tk.Entry(frame1,width=25)
         self.name.grid(row=1,column=0,pady=5,padx=5,ipady=5)
-        #age
+        #DOB
         age_label = tk.Label(frame1,text='Age').grid(row=0,column=1,sticky=tk.W,padx=5)
         self.age = tk.Entry(frame1,width=25)
         self.age.grid(row=1,column=1,pady=5,padx=5,ipady=5)
-        #phone
+        #Phone number
         phone_label = tk.Label(frame1,text='Phone Number').grid(row=0,column=2,sticky=tk.W,padx=5)
         self.phone = tk.Entry(frame1,width=25)
         self.phone.grid(row=1,column=2,pady=5,padx=5,ipady=5)
-        #email address
-        email_label = tk.Label(frame1,text='Email Address').grid(row=2,column=0,sticky=tk.W,padx=5)
-        self.email = tk.Entry(frame1,width=25)
-        self.email.grid(row=3,column=0,pady=5,padx=5,ipady=5)
-        #home address
-        address_label = tk.Label(frame1,text='Home Address').grid(row=2,column=1,sticky=tk.W,padx=5)
+        #Home address
+        address_label = tk.Label(frame1,text='Home Address').grid(row=2,column=0,sticky=tk.W,padx=5)
         self.address = tk.Entry(frame1,width=25)
-        self.address.grid(row=3,column=1,pady=5,padx=5,ipady=5)
-        #password
+        self.address.grid(row=3,column=0,pady=5,padx=5,ipady=5)
+        #Email address
+        email_label = tk.Label(frame1,text='Email Address').grid(row=2,column=1,sticky=tk.W,padx=5)
+        self.email = tk.Entry(frame1,width=25)
+        self.email.grid(row=3,column=1,pady=5,padx=5,ipady=5)
+        #Login Password
         password_label = tk.Label(frame1,text='Password').grid(row=2,column=2,sticky=tk.W,padx=5)
         self.password = tk.Entry(frame1,width=25,show="*")
         self.password.grid(row=3,column=2,pady=5,padx=5,ipady=5)
@@ -156,7 +156,8 @@ class StaffView(tk.Frame):
         update = tk.Button(frame2,width=15,height=3,text='Update Customer',command=lambda:ManagePeople(self).update_data('Customer'))
         srch_cust = tk.Button(frame2,width=15,height=3,text='Search Customer',command=lambda:ManagePeople(self).search_data('Customer'))
         delete = tk.Button(frame2,width=15,height=3,text='Delete Customer',command=lambda:ManagePeople(self).delete_data('Customer'))
-        view_staff = tk.Button(frame2,width=15,height=3,text='View all Staff',command=lambda:ManagePeople(self).view_data('Staff'))
+        view_customers = tk.Button(frame2,width=15,height=3,text='View all Customers',command=lambda:ManagePeople(self).view_data('Customer'))
+        sort_customers = tk.Button(frame2,width=15,height=3,text='Sort By Name',command=lambda:ManagePeople(self).sort('Customer','Name'))
         mng_product = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Manage Products',command=lambda: controller.show_frame(StaffManageProduct))
         mng_orders =  tk.Button(frame2,width=15,height=3,bg='lightgreen',text='Manage Orders',command=lambda: controller.show_frame(StaffManageOrder))
         exit = tk.Button(frame2,width=15,height=3,text="Exit",bg='red',command=lambda:controller.show_frame(StartPage))
@@ -165,10 +166,11 @@ class StaffView(tk.Frame):
         update.grid(row=0,column=1,padx=5,pady=5) 
         delete.grid(row=1,column=0,padx=5,pady=5)
         srch_cust.grid(row=1,column=1,padx=5,pady=5)
-        view_staff.grid(row=2,column=0,padx=5,pady=5)
-        mng_product.grid(row=2,column=1,padx=5,pady=5)
-        mng_orders.grid(row=3,column=0)
-        exit.grid(row=3,column=1)
+        view_customers.grid(row=2,column=0,padx=5,pady=5)
+        sort_customers.grid(row=2,column=1,padx=5,pady=5)
+        mng_product.grid(row=3,column=0)
+        mng_orders.grid(row=3,column=1)
+        exit.grid(row=4,column=0,pady=5,columnspan=3)
 
 #Owner window upon authentication
 class OwnerView(tk.Frame):
@@ -187,7 +189,7 @@ class OwnerView(tk.Frame):
         scroll = tk.Scrollbar(frame3)
         scroll.pack(side=tk.RIGHT,padx=5,expand=True,fill=tk.Y)
         ##
-        self.lst_box = tk.Listbox(frame3,width=50,height=20,bg='lightgreen',bd=5,yscrollcommand = scroll.set)
+        self.lst_box = tk.Listbox(frame3,width=300,height=20,bg='lightgreen',bd=5,yscrollcommand = scroll.set)
         self.lst_box.pack(padx=5)
         self.lst_box.bind('<<ListboxSelect>>',ManagePeople(self).get_selected_row)
         ##
@@ -222,22 +224,25 @@ class OwnerView(tk.Frame):
 
         #second frame buttons
         add_staff = tk.Button(frame2,width=15,height=3,text='Add Staff',command=lambda: ManagePeople(self).insert_data('Staff'))
-        update = tk.Button(frame2,width=15,height=3,text='Update',command= lambda: ManagePeople(self).update_data('Staff'))
-        view_staff = tk.Button(frame2,width=15,height=3,text='Search Staff',command=lambda: ManagePeople(self).search_data('Staff'))
-        view_cust = tk.Button(frame2,width=15,height=3,text='Search Customer' )
+        update = tk.Button(frame2,width=15,height=3,text='Update Staff',command= lambda: ManagePeople(self).update_data('Staff'))
+        srch_staff = tk.Button(frame2,width=15,height=3,text='Search Staff',command=lambda: ManagePeople(self).search_data('Staff'))
         delete = tk.Button(frame2,width=15,height=3,text='Delete Staff',command=lambda:ManagePeople(self).delete_data('Staff'))
-        mng_product = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Manage Products',command=lambda: controller.show_frame(StaffManageProduct))
+        sort_id = tk.Button(frame2,width=15,height=3,text='View all Sorted by id',command=lambda: ManagePeople(self).sort('Staff','id'))
+        view_cust = tk.Button(frame2,width=15,height=3,text='Search Customer',command=lambda: ManagePeople(self).view_data('Customer') )
+        
+        mng_products = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Manage Products',command=lambda: controller.show_frame(StaffManageProduct))
         mng_orders =  tk.Button(frame2,width=15,height=3,bg='lightgreen',text='Manage Orders',command=lambda: controller.show_frame(StaffManageOrder))
         exit = tk.Button(frame2,width=15,height=3,text="Exit",bg='red',command=lambda:controller.show_frame(StartPage))
         
         add_staff.grid(row=0,column=0,padx=5,pady=5)
         update.grid(row=0,column=1,padx=5,pady=5) 
-        view_staff.grid(row=1,column=0,padx=5,pady=5)
-        view_cust.grid(row=1,column=1,padx=5,pady=5)
-        delete.grid(row=2,column=0,padx=5,pady=5)
-        mng_product.grid(row=2,column=1,padx=5,pady=5)
-        mng_orders.grid(row=3,column=0)
-        exit.grid(row=3,column=1)
+        srch_staff.grid(row=1,column=0,padx=5,pady=5)
+        delete.grid(row=1,column=1,padx=5,pady=5)
+        sort_id.grid(row=2,column=0,padx=5,pady=5)
+        view_cust.grid(row=2,column=1,padx=5,pady=5)
+        mng_products.grid(row=3,column=0)
+        mng_orders.grid(row=3,column=1)
+        exit.grid(row=4,column=0,pady=5,columnspan=3)
 
 #Where the employees can manage product details
 class StaffManageProduct(tk.Frame):
@@ -292,7 +297,7 @@ class StaffManageProduct(tk.Frame):
         srch_product = tk.Button(frame2,width=15,height=3,text='Search Product',command=lambda:ManageProduct(self).search_data('Product'))
         delete_product = tk.Button(frame2,width=15,height=3,text='Delete Product',command=lambda:ManageProduct(self).delete_data('Product'))
         view_all = tk.Button(frame2,width=15,height=3,text='View all',command=lambda:ManageProduct(self).view_data('Product'))
-        mng_people = tk.Button(frame2,width=15,height=3,bg='lightblue',text='Manage People',command=lambda: controller.show_frame(StaffView))
+        mng_orders =  tk.Button(frame2,width=15,height=3,bg='lightgreen',text='Manage Orders',command=lambda: controller.show_frame(StaffManageOrder))
         exit = tk.Button(frame2,width=15,height=3,text="Exit",bg='red',command=lambda:controller.show_frame(StartPage))
         #place all the buttons
         add_product.grid(row=0,column=0,padx=5,pady=5)
@@ -300,60 +305,109 @@ class StaffManageProduct(tk.Frame):
         delete_product.grid(row=1,column=0,padx=5,pady=5)
         srch_product.grid(row=1,column=1,padx=5,pady=5)
         view_all.grid(row=2,column=0,padx=5,pady=5)
-        mng_people.grid(row=2,column=1,padx=5,pady=5)
+        mng_orders.grid(row=2,column=1,padx=5,pady=5)
         exit.grid(row=3,column=0,columnspan=3)
 
-#Where the employees can manage order details
+#Where the employees can view all the orders
 class StaffManageOrder(tk.Frame):
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
 
         #making frames for different sections of the layout
         #View area frame
-        va = tk.Frame(self)
-        va.grid(row=0,column=0,padx=5,pady=0,columnspan=3)
+        va = tk.Frame(self,width=500,height=300)
+        va.grid(row=0,column=0,padx=30,pady=15,columnspan=2)
         #product name frame
-        pnf = tk.Frame(self)  
-        pnf.grid(row=1,column=1,padx=5,rowspan=2)
+        pnf = tk.Frame(self,width=150,height=200)  
+        pnf.grid(row=1,column=0,padx=25)
         #Action button frame
-        abf = tk.Frame(self)
-        abf.grid(row=1,column=2,padx=5,pady=10,sticky=tk.W)
+        abf = tk.Frame(self,width=250,height=200)
+        abf.grid(row=1,column=1,pady=10,sticky=tk.W)
         
         #View area entry
         #User id
         userid_label = tk.Label(va,text='User Id').grid(row=0,column=0,sticky=tk.W,padx=5)
         self.userid = tk.Entry(va,width=25)
         self.userid.grid(row=1,column=0,pady=5,padx=5,ipady=5)
-        #Product Name
-        name_label = tk.Label(va,text='Product Name').grid(row=0,column=1,sticky=tk.W,padx=5)
-        self.pdname = tk.Entry(va,width=25)
-        self.pdname.grid(row=1,column=1,pady=5,padx=5,ipady=5)
-        #Price
-        price_label = tk.Label(va,text='Price').grid(row=0,column=2,sticky=tk.W,padx=5)
-        self.price = tk.Entry(va,width=25)
-        self.price.grid(row=1,column=2,pady=5,padx=5,ipady=5)
-        
-        #Category
-        """
-        catg_label = tk.Label(va,text='Status').grid(row=2,column=0,sticky=tk.W,padx=5)
-        self.category = tk.StringVar(value="Select")
-        self.dropdown = tk.OptionMenu(va,self.category,"Pending","Confirmed")
-        self.dropdown.config(width=15,bg='lightgreen')
-        self.dropdown.grid(row=3,column=0,pady=5,padx=5,ipady=5,sticky=tk.W) """
+        #Customer Name
+        name_label = tk.Label(va,text='Customer Name').grid(row=0,column=1,sticky=tk.W,padx=5)
+        self.cust_name = tk.Entry(va,width=25)
+        self.cust_name.grid(row=1,column=1,pady=5,padx=5,ipady=5)
+        #Address
+        address_label = tk.Label(va,text='Customer Address').grid(row=0,column=2,sticky=tk.W,padx=5)
+        self.cust_address = tk.Entry(va,width=25)
+        self.cust_address.grid(row=1,column=2,pady=5,padx=5,ipady=5)
+        #Email
+        email_label = tk.Label(va,text='Email').grid(row=0,column=3,sticky=tk.W,padx=5)
+        self.cust_email = tk.Entry(va,width=25)
+        self.cust_email.grid(row=1,column=3,pady=5,padx=5,ipady=5,columnspan=2)
         
         #set scrollbar and listbox
         scroll = tk.Scrollbar(pnf)
         scroll.grid(row=2,column=3,columnspan=1,sticky='w',padx=5,rowspan=3)
-        self.lst_box = tk.Listbox(pnf,width=45,height=20,bg='lightblue',bd=5)
+        self.lst_box = tk.Listbox(pnf,width=80,height=20,bg='lightblue',bd=5)
         self.lst_box.grid(row=2,column=0,pady=5,rowspan=3,columnspan=3,sticky='w')
         self.lst_box.bind('<<ListboxSelect>>',ManageOrder(self).get_selected_row)
         scroll.configure(command = self.lst_box.yview)
         
         #Action button frame buttons
-        view_all = tk.Button(abf,text="View all Orders",width=20,height=2,command=lambda:CustomerProductView(self).view_all_orders()).pack(pady=5,padx=5)
-        search = tk.Button(abf,text="Search",width=20,height=2,command=lambda:ManageOrder(self).search_order()).pack(padx=5)
-        mng_product = tk.Button(abf,text="Manage Product",width=20,height=2,bg='orange',command=lambda: controller.show_frame(StaffManageProduct)).pack(pady=5,padx=5)
+        view_all = tk.Button(abf,text="View all Orders",width=20,height=2,command=lambda:CustomerProductView(self).view_all_orders()).pack(padx=5)
+        open_selected = tk.Button(abf,text="Open Selected Order",width=20,height=2,command=lambda:(controller.show_frame(UserOrder))).pack(pady=5,padx=5)
+        mark_complete = tk.Button(abf,text="Mark Order Complete",width=20,height=2,command=lambda:ManageOrder(self).mark_complete()).pack(padx=5)
+        invoice = tk.Button(abf,text="Download Order Invoice",width=20,height=2,command=lambda:ManageOrder(self).download_invoice()).pack(padx=5)
+        search = tk.Button(abf,text="Search",width=20,height=2,command=lambda:ManageOrder(self).search_order()).pack(pady=5,padx=5)
+        mng_product = tk.Button(abf,text="Manage Product",width=20,height=2,bg='orange',command=lambda: controller.show_frame(StaffManageProduct)).pack(padx=5)
         exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command=lambda:controller.show_frame(LoginPage)).pack(padx=5,pady=5)
+
+#view where the employees can sell all the items in a order
+class UserOrder(tk.Frame):
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+        #making frames for different sections of the layout
+        #View area frame
+        va = tk.Frame(self,width=500,height=300)
+        va.grid(row=0,column=1,padx=30,pady=15)
+        #product name frame
+        pnf = tk.Frame(self,width=150,height=200)  
+        pnf.grid(row=1,column=1,padx=5)
+
+        #View area entry
+        #User id
+        productid_label = tk.Label(va,text='Product Id').grid(row=0,column=0,sticky=tk.W,padx=5)
+        self.prod_id = tk.Entry(va,width=25)
+        self.prod_id.grid(row=1,column=0,pady=5,padx=5,ipady=5)
+        #Customer Name
+        name_label = tk.Label(va,text='Product Name').grid(row=0,column=1,sticky=tk.W,padx=5)
+        self.prod_name = tk.Entry(va,width=25)
+        self.prod_name.grid(row=1,column=1,pady=5,padx=5,ipady=5)
+        #Address
+        price_label = tk.Label(va,text='Price').grid(row=0,column=2,sticky=tk.W,padx=5)
+        self.prod_price = tk.Entry(va,width=25)
+        self.prod_price.grid(row=1,column=2,pady=5,padx=5,ipady=5)
+        #Email
+        isbn_label = tk.Label(va,text='ISBN').grid(row=0,column=3,sticky=tk.W,padx=5)
+        self.prod_isbn = tk.Entry(va,width=25)
+        self.prod_isbn.grid(row=1,column=3,pady=5,padx=5,ipady=5)
+        
+        #set scrollbar and listbox
+        scroll = tk.Scrollbar(pnf)
+        scroll.grid(row=2,column=3,columnspan=1,sticky='w',padx=5,rowspan=3)
+        self.lst_box = tk.Listbox(pnf,width=80,height=20,bg='lightblue',bd=5)
+        self.lst_box.grid(row=2,column=0,pady=0,rowspan=3,columnspan=3,sticky='w')
+        self.lst_box.bind('<<ListboxSelect>>',ManageOrder(self).get_selected_row)
+        scroll.configure(command = self.lst_box.yview)
+        
+        #go back button
+        view_items =  tk.Button(va,text="View",width=20,height=2,bg='Red',command=self.view_all).grid(row=2,column=0,pady=5,padx=5)
+        back = tk.Button(va,text="Go back",width=20,height=2,bg='Red',command=lambda:controller.show_frame(StaffManageOrder)).grid(row=2,column=1,pady=5,padx=5)
+        
+        self.total = tk.Label(self,text='Total price: £',font=('Arial',15))
+        self.total.grid(row=3,column=1,columnspan=2)
+        #self.view_all()
+    
+    def view_all(self):
+        total_price = ManageOrder(self).display_items()
+        self.total['text'] = f'Total price: £ {round(total_price,2)}'
 
 #Customer window upon authentication
 class CustomerView(tk.Frame):
@@ -427,11 +481,11 @@ class ProductView(tk.Frame):
         scroll.configure(command = self.lst_box.yview)
         
         #Action button frame buttons
-        view_all = tk.Button(abf,text="View all",width=20,height=2,command=lambda:ManageProduct(self).view_data('Product')).pack(pady=5,padx=5)
-        search = tk.Button(abf,text="Search",width=20,height=2,command=lambda:CustomerProductView(self).search_data('Product')).pack(padx=5)
-        to_basket = tk.Button(abf,text="Add to basket",width=20,height=2,bg='orange',command=lambda: CustomerProductView(self).insert_order(user_id,"Product")).pack(pady=5,padx=5)
+        view_all = tk.Button(abf,text="View all Products",width=20,height=2,command=lambda:ManageProduct(self).view_data('Product')).pack(pady=5,padx=5)
+        search = tk.Button(abf,text="Search Product",width=20,height=2,command=lambda:CustomerProductView(self).search_data('Product')).pack(padx=5)
+        to_basket = tk.Button(abf,text="Add to Order",width=20,height=2,bg='orange',command=lambda: CustomerProductView(self).insert_order(user_id,"Product")).pack(pady=5,padx=5)
         view_basket = tk.Button(abf,text="Open Basket",width=20,height=2,bg='lightblue',command=lambda:controller.show_frame(Basket)).pack(padx=5)
-        exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command=lambda:App(self).destroy).pack(padx=5,pady=5)
+        exit = tk.Button(abf,text="Exit",width=20,height=2,bg='Red',command=lambda:controller.show_frame(LoginPage)).pack(padx=5,pady=5)
 
 # Events Object frame layouts product details
 class EventView(tk.Frame):
@@ -490,20 +544,21 @@ class Basket(tk.Frame):
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
         
-        lbl = tk.Label(self,text="Your Items have been placed for order. \n You can add /remove items if necessary").pack()
+        lbl = tk.Label(self,text="Your currently pending orders are displayed below: ").pack()
         #set scrollbar and listbox
         scroll = tk.Scrollbar(self)
         scroll.pack(side=tk.RIGHT,expand=True,fill=tk.Y)
         self.lst_box = tk.Listbox(self,width=75,height=20,bg='lightblue',bd=5)
         self.lst_box.pack(padx=5)
         scroll.configure(command = self.lst_box.yview)
-        #Remove Item Button
+        #View Item Button
         view_items = tk.Button(self,text="View all items",bg='lightgreen',width=20,height=3,command=self.view_all).pack(pady=5,padx=10,side=tk.LEFT)
-        remove_btn = tk.Button(self,text="Remove Selected Item",bg='lightgreen',width=20,height=3).pack(pady=5,padx=10,side=tk.RIGHT)
-        #self.view_all()
-
+        self.total = tk.Label(self,text='Total price: £',font=('Arial',15))
+        self.total.pack()
+    
     def view_all(self):
-        CustomerProductView.view_order(self,user_id)
+        total_price = CustomerProductView.view_order(self,user_id)
+        self.total['text'] = f'Total price: £ {round(total_price,2)}'
 
 app = App()
 app.mainloop()
