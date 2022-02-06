@@ -1,16 +1,18 @@
 import tkinter as tk
-import sqlite3
+import sqlite3, tkinter.messagebox
 from dbmanage import *
+from validation import *
 
 #Application class with necessary components to make pages
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
-        #Set the frame and geometry for the app
+        #Set geometry for the app
         self.geometry('800x500')
         self.resizable(0,0)
-        
+
+        #setup frames 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand = True)
         container.grid_rowconfigure(0, weight=1)
@@ -88,13 +90,12 @@ class LoginPage(tk.Frame):
         selected_user = cur.fetchone()
         
         #extract user id for later use
-        global user_id
-        user_id = selected_user[0]
-
-        if not selected_user:
-            return "Login Failed"
-            
+        if selected_user == None:
+            tkinter.messagebox.showerror("Error",'Login Unsuccessful \nCheck details')
         else:
+            global user_id
+            user_id = selected_user[0]
+
             if user_type == "Customer":
                 controller.show_frame(CustomerView)
             elif user_type == "Staff":

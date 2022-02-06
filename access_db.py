@@ -1,5 +1,4 @@
 import sqlite3
-import datetime
 
 conn = sqlite3.connect('info.db')
 cur = conn.cursor()
@@ -81,6 +80,7 @@ def connect():
     conn.close()
 
 ########## Managing People ### Owner,Employee,Customer ##################
+#insert data to the database
 def insert(name,dob,phone,address,email,password,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -91,6 +91,7 @@ def insert(name,dob,phone,address,email,password,db):
     conn.commit()
     conn.close()
 
+#viewing records in the database
 def view(db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -100,6 +101,7 @@ def view(db):
 
     return rows
 
+#searching for specific person in the database
 def search(name="",dob="",phone="",email="",address="",db=""):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -114,6 +116,7 @@ def search(name="",dob="",phone="",email="",address="",db=""):
 
     return rows
 
+#deleting an item from the database
 def delete(id,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -121,6 +124,7 @@ def delete(id,db):
     conn.commit()
     conn.close()
 
+#updating data in the database
 def update(id,name,dob,phone,address,email,password,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -130,6 +134,7 @@ def update(id,name,dob,phone,address,email,password,db):
     conn.commit()
     conn.close()
 
+#sorting of data in the database
 def sort(db,factor):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -139,6 +144,7 @@ def sort(db,factor):
     return rows
 
 ################# Managing Products / Events DATA ########################
+#inserting products into the database
 def insert_pd(name,price,isbn,address,category,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -152,6 +158,7 @@ def insert_pd(name,price,isbn,address,category,db):
     conn.commit()
     conn.close()
 
+#view all products in the database
 def view_pd(db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -161,6 +168,7 @@ def view_pd(db):
 
     return rows
 
+#search for a product in the database
 def search_pd(name="",price="",isbn="",address="",category="",db=""):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -175,6 +183,7 @@ def search_pd(name="",price="",isbn="",address="",category="",db=""):
 
     return rows
 
+#deleting a product form the dattabase
 def delete_pd(id,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -182,6 +191,7 @@ def delete_pd(id,db):
     conn.commit()
     conn.close()
 
+#updating a product in the database
 def update_pd(id,name,price,isbn,address,category,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -192,6 +202,7 @@ def update_pd(id,name,price,isbn,address,category,db):
     conn.close()
 
 ################### Managing Orders #################################
+#creating new orders from the customer side
 def create_order(userid,productid,db):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -201,6 +212,7 @@ def create_order(userid,productid,db):
     conn.commit()
     conn.close()
 
+#searching for orders 
 def search_order(userid):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -213,6 +225,7 @@ def search_order(userid):
 
     return rows
 
+#view the details of the order; the customer side
 def view_order(userid):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -228,6 +241,7 @@ def view_order(userid):
 
     return rows
 
+#view user details of all customers who have made an order
 def view_all_orders():
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -243,6 +257,7 @@ def view_all_orders():
 
     return rows
 
+#details of the order; the staff/owner side
 def view_ordered_items(order_user_id):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -259,6 +274,7 @@ def view_ordered_items(order_user_id):
 
     return rows
 
+#Transfer all orders to anohter table when marked complete
 def transfer_orders(row):
     conn = sqlite3.connect('info.db')
     cur = conn.cursor()
@@ -271,9 +287,6 @@ def transfer_orders(row):
                  WHERE User_id = ?""",(row,))
     conn.commit()
     conn.close()
-    #,{datetime.datetime.now()}
 
-def get_invoice():
-    pass
-#insert('Sushil Bhandari','03/11/2003','073434434343','Cardiff','sushil','letmein','Owner')
+#insert('John Wick','03/11/1983','07343443434','Cardiff','admin@gmail.com','letmein','Owner')
 connect()
