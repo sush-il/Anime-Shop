@@ -1,4 +1,6 @@
 # Anime-Shop
+<p> A simple GUI shopping application for anime merchndise. It uses python and tkinter </p>
+
 
 <p> # "main.py" is the main file which is run first containing all the design elements of the program. <br>
 # All other files including the "res" folder is required to run the program <br> </p>
