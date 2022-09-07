@@ -1,5 +1,5 @@
 # Anime-Shop
-<p> A simple GUI shopping application for anime merchndise. It uses python and tkinter </p>
+<p> A simple GUI  application for a shop sselling anime merchndise. The application allows users and items to added, deleted and modified. Each user has diffent levels of access to files depending on their responsibilites. It uses python and tkinter.  </p>
 
 
 <p> # "main.py" is the main file which is run first containing all the design elements of the program. <br>
