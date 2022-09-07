@@ -1,7 +1,7 @@
 # Anime-Shop
 
-<p> # "main.py" is the main file which is run first containing all the design elements of the program. 
-# All other files including the "res" folder is required to run the program
+<p> # "main.py" is the main file which is run first containing all the design elements of the program. <br>
+# All other files including the "res" folder is required to run the program <br>
 
 # Users are categorised into Owner, Staff and Customer. Below are username and passwords for one user of each category:
 
