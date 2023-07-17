@@ -1,5 +1,5 @@
 # Anime Shop GUI Application
-This is a simple GUI application for a shop selling anime merchandise. The application allows users and items to be added, deleted, and modified. Each user has different levels of access to files depending on their responsibilities. The application is built using Python and Tkinter.
+This is a simple GUI application for a shop selling anime merchandise as well as tickets for events. The application allows users and items to be added, deleted, and modified. Each user has different levels of access to files depending on their responsibilities. The application is built using Python and Tkinter.
 
 ### Getting Started
 To run the application, follow these steps:
