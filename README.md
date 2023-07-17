@@ -1,32 +1,40 @@
-# Anime-Shop
-<p> A simple GUI  application for a shop selling anime merchndise. The application allows users and items to be added, deleted and modified. Each user has diffent levels of access to files depending on their responsibilites. It uses python and tkinter.  </p>
+# Anime Shop GUI Application
+This is a simple GUI application for a shop selling anime merchandise. The application allows users and items to be added, deleted, and modified. Each user has different levels of access to files depending on their responsibilities. The application is built using Python and Tkinter.
 
+### Getting Started
+To run the application, follow these steps:
 
-<p> # "main.py" is the main file which is run first containing all the design elements of the program. <br>
-# All other files including the "res" folder is required to run the program <br> </p>
+- Clone the repository or download the source code.
+- Install the required dependencies by running the following command:
+    - pip install -r requirements.txt
+- Run the main.py file to start the application.
+- Use the provided username and password to log in as Owner, Staff, or Customer (refer to the "User Credentials" section below).
 
-<p> # Users are categorised into Owner, Staff and Customer. <br> Below are username and passwords for one user of each category:
+### File Structure
+The project contains the following files and folders:
 
-#Owner <br> 
-username - admin@gmail.com <br>
-pasword - letmein<br> 
+- main.py: Main file containing the design elements of the program.
+- access_db.py: File for handling database access and user management.
+- res/: Folder containing any required resources for the application.
 
-#Staff <br> 
-username - peter@gmail.com <br> 
-password - letmein <br> 
+### User Credentials
+The application has three predefined user roles with the following credentials:
 
-#Customer<br> 
-username - tony@gmail.com<br> 
-password - letmein<br> 
-    
- <br> 
+**Owner:**
+Username: admin@gmail.com
+Password: letmein
 
-#In the case the current database file is deleted, the user owner must be created directly from the program, 
-"access_db.py" file. The code to do so is commented at the bottom of that file. After user owner is created
-other users can be added from the GUI by logging in as the owner. 
+**Staff:**
+Username: peter@gmail.com
+Password: letmein
 
+**Customer:**
+Username: tony@gmail.com
+Password: letmein
 
-#External modules needed for the program to run (need to install using pip):
-    - docx 
-    
-</p>
+![|80](https://github.com/sush-il/Anime-Shop/assets/34659821/8b30b917-8744-4a44-97cb-20de831fc60c)
+![|80](https://github.com/sush-il/Anime-Shop/assets/34659821/717f4951-2d7b-4e7a-8a5a-1541713177c3)
+![|80](https://github.com/sush-il/Anime-Shop/assets/34659821/a74b4ad2-8aba-408a-a97c-662913737acf)
+![|80](https://github.com/sush-il/Anime-Shop/assets/34659821/06bfeb77-25ae-4d95-a83a-99b43166e411)
+![|80](https://github.com/sush-il/Anime-Shop/assets/34659821/f0854003-2666-46b9-bea5-6e193eeb31b3)
+
